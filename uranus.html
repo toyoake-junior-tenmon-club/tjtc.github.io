@@ -1,0 +1,92 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>天王星(Uranus)</title>
+    <script src="https://unpkg.com/three@0.137.4/build/three.min.js"></script>
+    <script>
+      // ページの読み込みを待つ
+      window.addEventListener('DOMContentLoaded', init);
+
+      function init() {
+        // サイズを指定
+        const width = 400;
+        const height = 300;
+
+        // レンダラーを作成
+        const renderer = new THREE.WebGLRenderer({
+          canvas: document.querySelector('#myCanvas'),
+          antialias: true,
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(width, height);
+
+        // シーンを作成
+        const scene = new THREE.Scene();
+
+        // カメラを作成
+        const camera = new THREE.PerspectiveCamera(45, width / height);
+        camera.position.set(0, 0, +1000);
+
+        // 天体を生成
+        const geometry = new THREE.SphereGeometry(100, 100, 100);
+        // マテリアルを作成
+        const material = new THREE.MeshStandardMaterial({
+          color: 0x55eddb,
+          roughness: 0.5,
+        });
+        // メッシュを作成
+        const mesh = new THREE.Mesh(geometry, material);
+        // 3D空間にメッシュを追加
+        scene.add(mesh);
+
+        // 天体を生成
+        const geometry_ring = new THREE.TorusGeometry(300,5,10,50);
+        // マテリアルを作成
+        const material_ring = new THREE.MeshStandardMaterial({
+          color: 0x606060,
+          roughness: 0.5,
+        });
+        // メッシュを作成
+        const mesh_ring = new THREE.Mesh(geometry_ring, material_ring);
+        // 3D空間にメッシュを追加
+        scene.add(mesh_ring);
+
+
+        // 平行光源
+        const directionalLight = new THREE.DirectionalLight(0xffffff);
+        directionalLight.position.set(10, 0, 200);
+        scene.add(directionalLight);
+
+        // 点光源を作成
+        // new THREE.PointLight(色, 光の強さ, 距離, 光の減衰率)
+        const light = new THREE.PointLight(0xa0ffa0, 10, 10, 1.0);
+        scene.add(light);
+
+        tick();
+        // 毎フレーム時に実行されるループイベントです
+        function tick() {
+          // メッシュを回転させる
+
+          // 照明の位置を更新
+          const t = Date.now() / 100;
+          const r = 50;
+          //const ly = r * Math.cos(t);
+          const lz = r;
+          const ly = r * Math.cos(t);
+          //const lz = r;
+          const lx = 50 + r * Math.sin(t);
+          light.position.set(lx, ly, lz);
+          //light.lookAt(new THREE.Vector3(0, 0, 0));
+
+
+          // レンダリング
+          renderer.render(scene, camera);
+          requestAnimationFrame(tick);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="myCanvas"></canvas>
+  </body>
+</html>

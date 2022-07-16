@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head><title>重力</title>
+    <style>
+        canvas {
+            background-color: #101010;
+        }
+    </style>
+</head>
+<body>
+<input type="button" value="開始" onclick="startMotion()" />
+<input type="button" value="測地線" onclick="showOrbit()" />
+<input type="button" value="停止" onclick="stopMotion()" />
+<input type="button" value="リセット" onclick="resetMotion()" />
+<br>
+<canvas id="main" width="1200" height="600"></canvas>
+<script>
+    let canvas = document.querySelector('#main');
+    let context = canvas.getContext('2d');
+
+    let t = 0;
+
+    let start = false;
+    let orbit = false;
+
+    function center_mass(r) {
+        context.beginPath();
+        context.fillStyle = 'yellow';
+        context.arc((canvas.width / 2),(canvas.height / 2),r,0,2*Math.PI,true);
+        context.fill();
+    }
+
+    function mass(color, r, x, y)
+    {
+        context.beginPath();
+        context.fillStyle = color;
+        let canvas_x = (canvas.width / 2) + x;
+        let canvas_y = (canvas.height / 2) - y;
+        context.arc(canvas_x,canvas_y,r,0,2*Math.PI,true);
+        context.fill();
+    }
+
+    function line(x1,y1,x2,y2) {
+        context.beginPath();
+        context.strokeStyle = 'white';
+        context.moveTo((canvas.width / 2)+x1,(canvas.height / 2)-y1);
+        context.lineTo((canvas.width / 2)+x2,(canvas.height / 2)-y2);
+        context.stroke();        
+    }
+
+
+    function circle(r,x,y)
+    {
+        context.beginPath();
+        context.strokeStyle = 'white';
+        context.arc((canvas.width / 2)+x,(canvas.height / 2)-y,r,0,2*Math.PI,true);
+        context.stroke();
+    }
+
+    function motion() {
+        // 現在の描画をクリアする
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        center_mass(20);
+        if (orbit) {
+            line(-600,200,600,200);
+            circle(200,0,0);
+        }
+
+        for (var n=0;n<t;n++) {
+            mass('#bfffff', 10, 200*Math.sin(Math.PI*n/720), 200*Math.cos(Math.PI*n/720));
+            mass('#bfffff', 10, 0.75*n, 200);
+        }
+        mass('#00ffff', 10, 200*Math.sin(Math.PI*t/720), 200*Math.cos(Math.PI*t/720));
+        mass('#00ffff', 10, 0.75*t, 200);
+
+
+        if (start) {
+            t = t + 1;
+        }
+    }
+
+    function startMotion() {
+        start = true;
+    }
+
+    function showOrbit() {
+        orbit = !orbit;
+    }
+
+    function stopMotion() {
+        start = false;
+    }
+
+    function resetMotion() {
+        t = 0;
+    }
+
+    function update(callback) {
+        motion();
+        window.requestAnimationFrame(update);
+    }
+
+    // updateの実行
+    window.requestAnimationFrame(update);
+</script>
+</body>
+</html>

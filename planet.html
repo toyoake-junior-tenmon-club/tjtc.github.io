@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head><title>相対運動:地球から見た太陽系の動き</title>
+    <style>
+        canvas {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+<input type="button" value="軌道表示(Orbit)" onclick="orbitClick()" />
+<input type="text" id="refresh" value="1"/>
+<input type="button" value="再生/一時停止" onclick="autoClick()" />
+<input type="button" value="コマ送り" onclick="stepClick()" />
+<input type="text" id="gain" value="1"/>
+<input type="button" value="倍率" onclick="gainClick()" />
+<br>
+<canvas id="main" width="1200" height="1200"></canvas>
+<script>
+    let canvas = document.querySelector('#main');
+    let context = canvas.getContext('2d');
+    let pre_trace = false;
+    let trace = false;
+    let auto = true;
+
+    const textbox_refresh = document.getElementById('refresh');
+    const textbox_gain = document.getElementById('gain');
+    let gain = 1.0; // 倍率
+    let x_offset = 0;
+    let y_offset = 0;
+
+    function solar(r, x_abs, y_abs) {
+        context.beginPath();
+        context.fillStyle = 'yellow';
+        let r_disp = (trace) ? r : 8;
+        context.arc((canvas.width / 2)+(x_offset-x_abs)*gain,(canvas.height / 2) - (y_offset - y_abs)*gain,r_disp,0,2*Math.PI,true);
+        context.fill();
+    }
+
+    function planet(color, r, x, y, x_abs, y_abs)
+    {
+        context.beginPath();
+        context.fillStyle = color;
+        let canvas_x = (canvas.width / 2) + (x-x_abs)*gain;
+        let canvas_y = (canvas.height / 2) - (y-y_abs)*gain;
+        context.arc(canvas_x,canvas_y,r,0,2*Math.PI,true);
+        context.fill();
+    }
+
+    function jupiter(r, x, y, x_abs, y_abs)
+    {
+        context.beginPath();
+        let canvas_x = (canvas.width / 2) + (x-x_abs)*gain;
+        let canvas_y = (canvas.height / 2) - (y-y_abs)*gain;
+        var g = context.createLinearGradient(canvas_x,canvas_y - r/2,canvas_x, canvas_y + r/2);
+        g.addColorStop(0.0, 'white');
+        g.addColorStop(0.25, 'brown');
+        g.addColorStop(0.5, 'white');
+        g.addColorStop(0.75, 'brown');
+        g.addColorStop(1.0, 'white');
+        context.fillStyle = (trace) ? g : 'white';
+        context.arc(canvas_x,canvas_y,r,0,2*Math.PI,true);
+        context.fill();
+    }
+
+    function saturn(color, r, x, y, x_abs, y_abs)
+    {
+        context.beginPath();
+        context.fillStyle = color;
+        let canvas_x = (canvas.width / 2) + (x-x_abs)*gain;
+        let canvas_y = (canvas.height / 2) - (y-y_abs)*gain;
+        context.arc(canvas_x,canvas_y,r,0,2*Math.PI,true);
+        if (trace) {
+            context.ellipse(canvas_x, canvas_y, r*2, r/2, 0, 0, 2*Math.PI,true);
+        }
+        context.fill();
+    }
+
+    function orbit(r, x_abs, y_abs)
+    {
+        if (trace) {
+            context.beginPath();
+            context.strokeStyle = 'gray';
+            context.arc((canvas.width / 2)+(x_offset-x_abs)*gain,(canvas.height / 2) -(y_offset - y_abs)*gain,r*gain,0,2*Math.PI,true);
+            context.stroke();
+        }
+    }
+
+    const T1 = 90;
+    const T2 = 240;
+    const T3 = 360;
+    const T4 = 720;
+    const T5 = 12*360;
+    const T6 = 29*360;
+    const T7 = 84*360;
+    const T8 = 164*360;
+
+    const M1 = 0.0553;
+    const M2 = 0.815;
+    const M3 = 1;
+    const M4 = 0.107;
+    const M5 = 317.83;
+    const M6 = 95.16;
+    const M7 = 14.5;
+    const M8 = 17.2;
+
+    // 初期値
+    let t1 = Math.floor(Math.random()*T1);
+    let t2 = Math.floor(Math.random()*T2);
+    let t3 = Math.floor(Math.random()*T3);   
+    let t4 = Math.floor(Math.random()*T4);
+    let t5 = Math.floor(Math.random()*T5);
+    let t6 = Math.floor(Math.random()*T6);
+    let t7 = Math.floor(Math.random()*T7);
+    let t8 = Math.floor(Math.random()*T8);
+
+    let cnt = 0;
+    let refresh = 1;
+    function motion() {
+        // 現在の描画をクリアする
+        if (trace) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        else if (pre_trace) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            cnt = 0;
+        }
+        else {
+            cnt++;
+            if (cnt >= refresh) {
+                cnt = 0;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        pre_trace = trace;
+
+        let R = 20;
+        let r = 10 + Math.floor(Math.random() * 5);
+        let unit_au = 20;
+
+        let earth_x_abs = (R + unit_au) * Math.cos(2*Math.PI*t3 / 360);
+        let earth_y_abs = (R + unit_au) * Math.sin(2*Math.PI*t3 / 360);
+
+        // Sun
+        solar(r, earth_x_abs, earth_y_abs);
+
+        // Mercury
+        let r1 = 1;
+        orbit(R + 0.4 * unit_au, earth_x_abs, earth_y_abs);
+        planet('white',
+        r1,
+        (R + 0.4 * unit_au) * Math.cos(2*Math.PI*t1 / 90) + x_offset,
+        (R + 0.4 * unit_au) * Math.sin(2*Math.PI*t1 / 90) + y_offset,
+        earth_x_abs,
+        earth_y_abs
+        );
+
+        // Venus
+        let r2 = 2
+        orbit(R + 0.7 * unit_au, earth_x_abs, earth_y_abs);
+        planet('gold',
+        r2,
+        (R + 0.7 * unit_au) * Math.cos(2*Math.PI*t2 / 240) + x_offset,
+        (R + 0.7 * unit_au) * Math.sin(2*Math.PI*t2 / 240) + y_offset,
+        earth_x_abs,
+        earth_y_abs            
+        ); 
+
+        // Earth
+        let r3 = 2
+        orbit(R + unit_au, earth_x_abs, earth_y_abs);
+        planet('#8080ff', 
+        r3,
+        (R + unit_au) * Math.cos(2*Math.PI*t3 / 360) + x_offset,
+        (R + unit_au) * Math.sin(2*Math.PI*t3 / 360) + y_offset,
+        earth_x_abs,
+        earth_y_abs
+        );
+
+        // Mars
+        let r4 = 2
+        orbit(R + 1.5 * unit_au, earth_x_abs, earth_y_abs);
+        planet('#ff8080', 
+        r4,
+        (R + 1.5 * unit_au) * Math.cos(2*Math.PI*t4 / 720) + x_offset,
+        (R + 1.5 * unit_au) * Math.sin(2*Math.PI*t4 / 720) + y_offset,
+        earth_x_abs,
+        earth_y_abs
+        );
+
+        // Jupyter
+        let r5 = 7;
+        orbit(R+5.2*unit_au, earth_x_abs, earth_y_abs);
+        jupiter(r5,
+        (R + 5.2 * unit_au) * Math.cos(2*Math.PI*t5 / (12*360)) + x_offset,
+        (R + 5.2 * unit_au) * Math.sin(2*Math.PI*t5 / (12*360)) + y_offset,
+        earth_x_abs,
+        earth_y_abs
+        );
+    
+        // Saturn
+        let r6 = 6;
+        orbit(R+10*unit_au, earth_x_abs, earth_y_abs);
+        saturn('white', 
+        r6,
+        (R + 10 * unit_au) * Math.cos(2*Math.PI*t6 / (29*360)) + x_offset,
+        (R + 10 * unit_au) * Math.sin(2*Math.PI*t6 / (29*360)) + y_offset,
+        earth_x_abs,
+        earth_y_abs
+        );
+
+        // Uranus
+        let r7 = 5;
+        orbit(R+19*unit_au, earth_x_abs, earth_y_abs);
+        planet('#5BA275', 
+        r7,
+        (R + 19 * unit_au) * Math.cos(2*Math.PI*t7 / (84*360)) + x_offset,
+        (R + 19 * unit_au) * Math.sin(2*Math.PI*t7 / (84*360)) + y_offset,
+        earth_x_abs,
+        earth_y_abs
+        );
+
+        // Neptune
+        let r8 = 5;
+        orbit(R+30*unit_au, earth_x_abs, earth_y_abs);
+        planet('#37619C', 
+        r8,
+        (R + 30 * unit_au) * Math.cos(2*Math.PI*t8 / (164*360)) + x_offset,
+        (R + 30 * unit_au) * Math.sin(2*Math.PI*t8 / (164*360)) + y_offset,
+        earth_x_abs,
+        earth_y_abs
+        );
+
+        t1 = (t1 < T1) ? t1+1 : 0;
+        t2 = (t2 < T2) ? t2+1 : 0;
+        t3 = (t3 < T3) ? t3+1 : 0;
+        t4 = (t4 < T4) ? t4+1 : 0;
+        t5 = (t5 < T5) ? t5+1 : 0;
+        t6 = (t6 < T6) ? t6+1 : 0;
+        t7 = (t7 < T7) ? t7+1 : 0;
+        t8 = (t8 < T8) ? t8+1 : 0;
+    }
+
+    function orbitClick() {
+        let rval = textbox_refresh.value;
+        if (!trace) {
+            if (rval != refresh) {
+                refresh = rval;
+            }
+            else {
+                trace = true;
+            }
+        }
+        else {
+            trace = false;
+            refresh = rval;
+        }
+    }
+
+    function autoClick() {
+        auto = !auto;
+    }
+
+    function stepClick() {
+        if (!auto) {
+            motion();
+        }
+    }
+
+    function gainClick() {
+        let gval = textbox_gain.value;
+        if (gval >= 0.5) {
+            gain = gval;
+        }
+    }
+
+    function update(callback) {
+        // updateを繰り返す
+        if (auto) {
+            motion();
+        }
+        window.requestAnimationFrame(update);
+    }
+
+
+
+    // updateの実行
+    window.requestAnimationFrame(update);
+</script>
+</body>
+</html>

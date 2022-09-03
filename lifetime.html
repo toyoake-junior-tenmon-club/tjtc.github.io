@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>宇宙の誕生と未来</title>
+    </head>
+    <body>
+        <canvas id="thecanvas" width="800" height="600"></canvas>
+        <script>
+            var canvas = document.getElementById('thecanvas');
+            var context = canvas.getContext('2d');
+            var centerX = canvas.width / 2;
+            var centerY = canvas.height / 2;
+            var radius_base = 50;
+            
+            const color_base = '#8ED6FF';
+            const color_blue = '#FFFF88';
+            var t = 0;
+            // save state
+            //context.save();
+            
+
+            
+            setInterval(
+                () => {
+                    context.fillStyle = '#000000';
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+
+                    if (t < 255) {
+                        radius_base = t;
+
+                        context.beginPath();
+                        context.arc(centerX, centerY, radius_base, 0, 2 * Math.PI, false);
+                        context.fillStyle = "rgba(" + [t, 255-t, 255-t, 1.0] +")";
+                        context.fill();
+                        context.lineWidth = 2;
+                    }
+                    else if (255 <= t && t < 260) {
+                        context.fillStyle = "rgba(" + [255, 255, 255, 1.0] +")";
+                        context.fillRect(0, 0, canvas.width, canvas.height);
+
+                        radius_base = 255 - (t - 255) * 5;
+                        context.beginPath();
+                        context.arc(centerX, centerY, radius_base, 0, 2 * Math.PI, false);
+                        context.fillStyle = "rgba(" + [255, 255, 0, 1.0] +")";
+                        context.fill();
+
+                        context.beginPath();
+                        context.arc(centerX, centerY, 2, 0, 2 * Math.PI, false);
+                        context.fillStyle = '#000000';
+                        context.fill();
+                    }
+                    else {
+                        radius_base = 255 - (t - 255) * 4;
+                        context.beginPath();
+                        context.arc(centerX, centerY, radius_base, 0, 2 * Math.PI, false);
+                        context.fillStyle = "rgba(" + [255, 255, 0, 128/t] +")";
+                        context.fill();
+
+                        context.beginPath();
+                        context.arc(centerX, centerY, 2, 0, 2 * Math.PI, false);
+                        context.fillStyle = '#000000';
+                        context.fill();
+                    }
+
+                    t = (t < 360) ? t + 1 : 360;
+
+                },100);
+        </script>
+    </body>
+</html>

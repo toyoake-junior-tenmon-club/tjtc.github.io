@@ -2,9 +2,9 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>宇宙の誕生と未来</title>
+        <title>星雲ガス→恒星→ブラックホール</title>
     </head>
-    <body>
+    <body bgcolor="#000000">
         <canvas id="thecanvas" width="800" height="600"></canvas>
         <script>
             var canvas = document.getElementById('thecanvas');
@@ -12,14 +12,7 @@
             var centerX = canvas.width / 2;
             var centerY = canvas.height / 2;
             var radius_base = 50;
-            
-            const color_base = '#8ED6FF';
-            const color_blue = '#FFFF88';
             var t = 0;
-            // save state
-            //context.save();
-            
-
             
             setInterval(
                 () => {
@@ -32,29 +25,37 @@
                         context.beginPath();
                         context.arc(centerX, centerY, radius_base, 0, 2 * Math.PI, false);
                         context.fillStyle = "rgba(" + [t, 255-t, 255-t, 1.0] +")";
+                        context.shadowColor = "rgba(" + [t, 255-t, 255-t, 1.0] +")";
+                        context.shadowBlur = (t < 50) ? 100 - t : 50;
                         context.fill();
                         context.lineWidth = 2;
                     }
                     else if (255 <= t && t < 260) {
-                        context.fillStyle = "rgba(" + [255, 255, 255, 1.0] +")";
+                        var gain = Math.exp(255-t);
+                        context.fillStyle = "rgba(" + [255*gain, 255*gain, 0, 1.0] +")";
                         context.fillRect(0, 0, canvas.width, canvas.height);
 
-                        radius_base = 255 - (t - 255) * 5;
+                        radius_base = Math.pow(2, 263-t);
                         context.beginPath();
                         context.arc(centerX, centerY, radius_base, 0, 2 * Math.PI, false);
-                        context.fillStyle = "rgba(" + [255, 255, 0, 1.0] +")";
+                        context.fillStyle = "rgba(" + [255, 0, 0, 0.2] +")";
+                        context.shadowColor = "rgba(" + [255, 0, 0, 1.0] +")";
+                        context.shadowBlur = 100;
                         context.fill();
 
+                        // ブラックホール
                         context.beginPath();
                         context.arc(centerX, centerY, 2, 0, 2 * Math.PI, false);
                         context.fillStyle = '#000000';
+                        context.shadowBlur = 0;
                         context.fill();
                     }
                     else {
-                        radius_base = 255 - (t - 255) * 4;
                         context.beginPath();
-                        context.arc(centerX, centerY, radius_base, 0, 2 * Math.PI, false);
-                        context.fillStyle = "rgba(" + [255, 255, 0, 128/t] +")";
+                        context.arc(centerX, centerY, 5, 0, 2 * Math.PI, false);
+                        context.fillStyle = "rgba(" + [255, 0, 0, 0.2] +")";
+                        context.shadowColor = "rgba(" + [255, 0, 0, 1.0] +")";
+                        context.shadowBlur = 100;
                         context.fill();
 
                         context.beginPath();

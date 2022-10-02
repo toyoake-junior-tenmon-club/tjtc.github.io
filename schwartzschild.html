@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head><title>重力に吸い込まれる物体</title>
+    <style>
+        body {
+            background-color: #202020;
+        }
+        canvas {
+            background-color: #202020;
+        }
+    </style>
+</head>
+<body>
+<input type="button" value="開始" onclick="startMotion()" />
+<input type="button" value="リセット" onclick="resetMotion()" />
+<br>
+<canvas id="main" width="1200" height="600"></canvas>
+<script>
+    let canvas = document.querySelector('#main');
+    let context = canvas.getContext('2d');
+
+    let t = 0;
+
+    let start = false;
+    let orbit = false;
+
+    function center_mass(r) {
+        context.beginPath();
+        if (r > 5) {
+            context.fillStyle = 'gray';
+            context.arc((canvas.width / 2),(canvas.height / 2),r,0,2*Math.PI,true);
+            context.fill();
+        }
+        else {
+            context.fillStyle = 'black';
+            context.arc((canvas.width / 2),(canvas.height / 2),16,0,2*Math.PI,true);
+            context.fill();
+        }
+
+
+    }
+
+    function mass(color, r, x, y)
+    {
+        context.beginPath();
+        context.fillStyle = color;
+        let canvas_x = (canvas.width / 2) + x;
+        let canvas_y = (canvas.height / 2) - y;
+        context.arc(canvas_x,canvas_y,r,0,2*Math.PI,true);
+        context.fill();
+    }
+
+    function circle(r,x,y)
+    {
+        context.beginPath();
+        context.strokeStyle = 'white';
+        context.arc((canvas.width / 2)+x,(canvas.height / 2)-y,r,0,2*Math.PI,true);
+        context.stroke();
+    }
+
+    function motion() {
+        // 現在の描画をクリアする
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (var n=0;n<t;n++) {
+            mass('yellow', 5, 200*Math.exp(-0.001*n)*Math.sin(Math.PI*n/360), 200*Math.exp(-0.001*n)*Math.cos(Math.PI*n/360));
+        }
+        center_mass(0);
+        //mass('#00ffff', 10, 0.75*t, 200);
+
+
+        if (start) {
+            t = t + 1;
+        }
+    }
+
+    function startMotion() {
+        start = true;
+    }
+
+    function stopMotion() {
+        start = false;
+    }
+
+    function resetMotion() {
+        t = 0;
+    }
+
+    function update(callback) {
+        motion();
+        window.requestAnimationFrame(update);
+    }
+
+    // updateの実行
+    window.requestAnimationFrame(update);
+</script>
+</body>
+</html>

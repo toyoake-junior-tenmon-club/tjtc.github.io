@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head><title>重力観測</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        canvas {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+<input type="button" value="開始" onclick="startMotion()" />
+<input type="button" value="重力強(ゆっくり)" onclick="decr()" />
+<input type="button" value="重力弱(早く)" onclick="incr()" />
+<input type="button" value="リセット" onclick="resetMotion()" />
+<br>
+<canvas id="main" width="500" height="500"></canvas>
+<script>
+    let canvas = document.querySelector('#main');
+    let context = canvas.getContext('2d');
+
+    let t = 0;
+    let dt = 1;
+
+    let start = false;
+    let orbit = false;
+    const offsets = [0,100,200,300,400,500,600,700,800,900,1000];
+
+    function mass(r,x,y) {
+        context.beginPath();
+        if (dt > 0.9) {
+            context.fillStyle = 'yellow';
+        } else if (dt > 0.5) {
+            context.fillStyle = 'darkorange';
+        } else if (dt > 0.1) {
+            context.fillStyle = 'darkred';
+        } else {
+            context.fillStyle = 'black';
+        }
+        context.arc((canvas.width / 2)+x,(canvas.height / 2)-y,r,0,2*Math.PI,true);
+        context.fill();        
+    }
+
+    function circle(r,x,y)
+    {
+        if (10 < r && r < 500) {
+            context.beginPath();
+            context.strokeStyle = 'white';
+            context.arc((canvas.width / 2)+x,(canvas.height / 2)-y,r,0,2*Math.PI,true);
+            context.stroke();
+        }
+    }
+
+    function motion() {
+        // 現在の描画をクリアする
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        mass(10,0,0);
+        for (let n = 0; n < offsets.length; n++) {
+            circle(t-offsets[n],0,0);
+        }
+
+        if (start) {
+            t = t + dt;
+            if (t >= 1000) {
+                t = 500;
+            }
+        }
+    }
+
+    function startMotion() { start = true; }
+    function incr() {
+        if (dt < 2.0) {
+            dt = dt + 0.1;
+        }
+    }
+
+    function decr() {
+        if (dt > 0.1) {
+            dt -= 0.1;
+        }
+    }
+
+    function resetMotion() {
+        t = 0;
+        dt = 1.0;
+        start = false;
+    }
+
+    function update(callback) {
+        motion();
+        window.requestAnimationFrame(update);
+    }
+
+    // updateの実行
+    window.requestAnimationFrame(update);
+</script>
+</body>
+</html>

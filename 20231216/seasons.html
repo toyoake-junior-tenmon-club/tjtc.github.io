@@ -162,10 +162,12 @@
 
             let delay = 5;
             function update(callback) {
-                delay--;
-                if (auto && delay == 0) {
-                    motion();
-                    delay = 4;
+                if (auto) {
+                    delay--;
+                    if (delay <= 0) {
+                        motion();
+                        delay = 4;
+                    }
                 }
                 window.requestAnimationFrame(update);
             }

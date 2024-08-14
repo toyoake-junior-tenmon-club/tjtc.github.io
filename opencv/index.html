@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Hello OpenCV.js</title>
+<title>OpenCV.jsによるコントラスト補正</title>
 <style>
     body {
         background-color: #000000;
@@ -25,45 +25,63 @@
 <div>
   <div class="inputoutput">
     <div class="caption"><input type="file" id="fileInput" name="file" /></div>
-    <img src="./OpenCV.png" id="imageSrc" alt="No Image" />
+    <img src="./noimage.jpg" id="imageSrc" alt="No Image" />
   </div>
   <div class="inputoutput">
     <div class="caption">画像処理結果</div>
     <canvas id="canvasOutput" ></canvas>
   </div>
-  <input type="text" id="alpha" value="1"/>
-  <input type="text" id="beta" value="0"/>
-  <button id="reload">再描画</button>
 </div>
+ゲイン<button id="downGain">▼</button><button id="upGain">▲</button>
+オフセット<button id="downOffset">▼</button><button id="upOffset">▲</button>
 <p id="status">OpenCV.js is loading...</p>
 <script type="text/javascript">
+
+let gain = 2.0;
+let offset = -20.0;
 let imgElement = document.getElementById('imageSrc');
 let inputElement = document.getElementById('fileInput');
 inputElement.addEventListener('change', (e) => {
   imgElement.src = URL.createObjectURL(e.target.files[0]);
 }, false);
- 
-imgElement.onload = function() {
-  let mat = cv.imread(imgElement);
-  let mat_out = mat;
-  cv.imshow('canvasOutput', mat_out);
-  mat.delete();
-  mat_out.delete();
-};
 
-const alpha = document.getElementById('alpha');
-const beta = document.getElementById('beta');
-const reloadElement = document.getElementById('reload');
-reloadElement.addEventListener('click', () => {
-  let mat = cv.imread(imgElement);
-  let mat_out = mat;
-  let a = parseFloat(alpha.value);
-  let b = parseFloat(beta.value);
-  cv.convertScaleAbs(mat, mat_out, a, b);
-  cv.imshow('canvasOutput', mat_out);
-  mat.delete();
-  mat_out.delete();
+function paint() {
+  let src = cv.imread(imgElement);
+  let dst = new cv.Mat();
+
+  cv.addWeighted(src, gain, src, 0, offset, dst);
+
+  cv.imshow('canvasOutput', dst);
+  src.delete();
+  dst.delete();
+}
+
+imgElement.onload = function() { paint(); };
+
+const downGainElement = document.getElementById('downGain');
+downGainElement.addEventListener('click', () => {
+  gain = (gain > 1.0) ? gain - 1.0 : 1.0;
+  paint();
 });
+
+const upGainElement = document.getElementById('upGain');
+upGainElement.addEventListener('click', () => {
+  gain = (gain < 50.0) ? gain + 1.0 : 50.0;
+  paint();
+});
+
+const downOffsetElement = document.getElementById('downOffset');
+downOffsetElement.addEventListener('click', () => {
+  offset = offset - 10.0;
+  paint();
+});
+
+const upOffsetElement = document.getElementById('upOffset');
+upOffsetElement.addEventListener('click', () => {
+  offset = offset + 10.0;
+  paint();
+});
+
 
 var Module = {
   onRuntimeInitialized() {

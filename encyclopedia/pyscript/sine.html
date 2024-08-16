@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!-- PyScriptの読み込み -->
+        <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+        <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+        <!-- PyScriptで使うパッケージを指定 --- (*1) -->
+        <py-config>
+            packages = ["matplotlib"]
+        </py-config>
+    </head>
+    <body>
+        <!-- グラフの描画先を指定 --- (*2) -->
+        <div id="mlp" align="center"></div>
+        <script type="py">
+            # ライブラリのインポート宣言 --- (*3)
+            from pyscript import display
+            import matplotlib.pyplot as plt
+            import numpy as np
+            # サイン波を描画 --- (*4)
+            x = np.linspace(0,2,128)
+            y = np.sin(2.0*np.pi*x)
+
+            fig = plt.figure()
+            plt.plot(x,y,c="r",label=r"sine")
+            plt.grid()
+            plt.legend()
+            # グラフのレンダリング --- (*5)
+            display(plt, target="mlp")
+        </script>
+    </body>
+</html>

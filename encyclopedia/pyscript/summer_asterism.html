@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!-- PyScriptの読み込み -->
+        <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+        <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+        <!-- PyScriptで使うパッケージを指定 --- (*1) -->
+        <py-config>
+            packages = ["matplotlib", "pillow"]
+            [[fetch]]
+            files = ["summer_asterism.jpg"]
+        </py-config>
+    </head>
+    <body>
+        <!-- グラフの描画先を指定 --- (*2) -->
+        <div id="mlp"></div>
+        <script type="py">
+            # ライブラリのインポート宣言 --- (*3)
+            from pyscript import display
+            import matplotlib.pyplot as plt
+            from PIL import Image, ImageEnhance
+            
+            fig = plt.figure()
+            ax1 = fig.add_subplot(211)
+            ax2 = fig.add_subplot(212)
+            # Pillow でカラー画像を読み込む
+            img = Image.open('summer_asterism.jpg')
+            img_br = ImageEnhance.Brightness(img).enhance(0.4)
+            img_con = ImageEnhance.Contrast(img_br).enhance(2.5)
+            # matplotlibで表示
+            ax1.imshow(img)
+            ax2.imshow(img_con)
+            plt.show()
+
+            # グラフのレンダリング --- (*5)
+            display(plt, target="mlp")
+        </script>
+    </body>
+</html>

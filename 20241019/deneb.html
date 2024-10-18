@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head><title>star</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        canvas {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <input type="range" value="16" min="10" max="32" step="2" id="range_vega">ベガ(vega)
+    <input type="range" value="32" min="10" max="32" step="2" id="range_deneb">デネブ(deneb)<br>
+<canvas id="main" width="1200" height="1200"></canvas>
+<script>
+    let slider_vega = document.getElementById('range_vega');
+    let slider_deneb = document.getElementById('range_deneb');
+    let canvas = document.querySelector('#main');
+    let context = canvas.getContext('2d');
+
+    var level_v = 16;
+    var level_d = 32;
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min); // 上限は除き、下限は含む
+    }
+
+
+    function star(r,x,y) {
+        context.beginPath();
+        context.fillStyle = 'white';
+        context.arc((canvas.width / 2)+x,(canvas.height / 2)-y,r,0,2*Math.PI,true);
+        context.fill();        
+    }
+
+
+    function sliderDenebUpdate(event) {
+        level_d = slider_deneb.value;
+    }
+
+
+    function main() {
+        // 現在の描画をクリアする
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        star(32 * getRandomInt(40-level_d,48-level_d) / level_d,300,200);
+        star(5 * getRandomInt(2,8),-300,200);
+    }
+
+    function update(callback) {
+        main();
+        window.requestAnimationFrame(update);
+    }
+
+    slider_deneb.addEventListener('input',sliderDenebUpdate);
+
+    // updateの実行
+    window.requestAnimationFrame(update);
+</script>
+</body>
+</html>
